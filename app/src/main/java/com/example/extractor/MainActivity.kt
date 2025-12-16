@@ -83,7 +83,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     Toast.makeText(context,"Text copied to clipboard", Toast.LENGTH_SHORT).show()
                 }
             ){
-                Text("Copy Text")
+                Text("Copy Extracted TextText")
             }
         }
         PickImageFromGallery { uri ->
