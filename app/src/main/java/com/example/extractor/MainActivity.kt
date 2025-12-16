@@ -66,25 +66,26 @@ fun MainScreen(modifier: Modifier = Modifier) {
             CircularProgressIndicator()
         }
         if (extractedText.isNotEmpty()){
-            Text(
-                text = "Extracted Text: \n$extractedText",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Button(
-                onClick={
-                    val clipboard=
-                        context.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
-                    as android.content.ClipboardManager
-                    val clip= android.content.ClipData.newPlainText(
-                        "OCR Text",
-                        extractedText
-                    )
-                    clipboard.setPrimaryClip(clip)
-                    Toast.makeText(context,"Text copied to clipboard", Toast.LENGTH_SHORT).show()
-                }
-            ){
-                Text("Copy Extracted TextText")
-            }
+//            Text(
+//                text = "Extracted Text: \n$extractedText",
+//                style = MaterialTheme.typography.bodyMedium
+//            )
+//            Button(
+//                onClick={
+//                    val clipboard=
+//                        context.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
+//                    as android.content.ClipboardManager
+//                    val clip= android.content.ClipData.newPlainText(
+//                        "OCR Text",
+//                        extractedText
+//                    )
+//                    clipboard.setPrimaryClip(clip)
+//                    Toast.makeText(context,"Text copied to clipboard", Toast.LENGTH_SHORT).show()
+//                }
+//            ){
+//                Text("Copy Extracted TextText")
+//            }
+            CopySelectedText(extractedText=extractedText)
         }
         PickImageFromGallery { uri ->
             selectedImageUri=uri
@@ -139,23 +140,6 @@ fun DisplayImage(uri: Uri) {
 }
 
 
-@Composable
-fun MyButton() {
-    val context = LocalContext.current
-
-    Button(
-        onClick = {
-            Toast.makeText(context, "Jai Sri Ram 🚩", Toast.LENGTH_SHORT).show()
-        },
-        shape = RoundedCornerShape(22.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Red,
-            contentColor = Color.White
-        )
-    ) {
-        Text("Click Me")
-    }
-}
 
 @Composable
 fun PickImageFromGallery(
