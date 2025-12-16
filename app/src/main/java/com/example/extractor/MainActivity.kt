@@ -57,17 +57,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
     ) {
 //        MyButton()
 
-        PickImageFromGallery { uri ->
-            selectedImageUri=uri
-           // Toast.makeText(context, "Image selected:\n$uri", Toast.LENGTH_SHORT).show()
-            // Later → send this URI to ML Kit OCR
-            extractedText=""
-            runOCR(context,uri){text->
-                extractedText=text
-                isProcessing=false
-            }
-            isProcessing=false
-        }
+
 
         selectedImageUri?.let{
             DisplayImage(it)
@@ -80,6 +70,42 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 text = "Extracted Text: \n$extractedText",
                 style = MaterialTheme.typography.bodyMedium
             )
+            Button(
+                onClick={
+                    val clipboard=
+                        context.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
+                    as android.content.ClipboardManager
+                    val clip= android.content.ClipData.newPlainText(
+                        "OCR Text",
+                        extractedText
+                    )
+                    clipboard.setPrimaryClip(clip)
+                    Toast.makeText(context,"Text copied to clipboard", Toast.LENGTH_SHORT).show()
+                }
+            ){
+                Text("Copy Text")
+            }
+        }
+        PickImageFromGallery { uri ->
+            selectedImageUri=uri
+            // Toast.makeText(context, "Image selected:\n$uri", Toast.LENGTH_SHORT).show()
+            // Later → send this URI to ML Kit OCR
+            extractedText=""
+            isProcessing=true
+            runOCR(context,uri){text->
+                extractedText=text
+                isProcessing=false
+            }
+           // isProcessing=false
+        }
+        CaptureImageFromCamera { uri ->
+            selectedImageUri=uri
+            extractedText=""
+            isProcessing=true
+            runOCR(context,uri){
+                extractedText=it
+                isProcessing= false
+            }
         }
     }
 }
