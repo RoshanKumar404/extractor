@@ -1,5 +1,7 @@
 package com.example.extractor
 
+import android.R
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.Display
@@ -25,6 +27,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.extractor.ui.theme.ExtractorTheme
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,7 +49,8 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-
+    var extractedText by remember { mutableStateOf("") }
+    var isProcessing by remember { mutableStateOf(false) }
     Column(
         modifier = modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -53,13 +59,45 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
         PickImageFromGallery { uri ->
             selectedImageUri=uri
-            Toast.makeText(context, "Image selected:\n$uri", Toast.LENGTH_SHORT).show()
+           // Toast.makeText(context, "Image selected:\n$uri", Toast.LENGTH_SHORT).show()
             // Later → send this URI to ML Kit OCR
+            extractedText=""
+            runOCR(context,uri){text->
+                extractedText=text
+                isProcessing=false
+            }
+            isProcessing=false
         }
-        selectedImageUri?.let{uri->
-            DisplayImage(uri)
+
+        selectedImageUri?.let{
+            DisplayImage(it)
+        }
+        if(isProcessing){
+            CircularProgressIndicator()
+        }
+        if (extractedText.isNotEmpty()){
+            Text(
+                text = "Extracted Text: \n$extractedText",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
+}
+fun runOCR(
+    context: Context,
+    uri:Uri,
+    onResult: (String)-> Unit
+){
+    val image= InputImage.fromFilePath(context,uri)
+    val  recognizer= TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+
+    recognizer.process(image)
+        .addOnSuccessListener{visionText->
+            onResult(visionText.text)
+        }
+        .addOnFailureListener {
+            onResult("OCR Failed : %{it.message}")
+        }
 }
 
 @Composable
