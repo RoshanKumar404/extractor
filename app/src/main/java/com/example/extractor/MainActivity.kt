@@ -4,8 +4,7 @@ import android.R
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import android.view.Display
-import android.widget.Toast
+
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -13,23 +12,32 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
+
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.extractor.ui.theme.ExtractorTheme
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,11 +60,30 @@ fun MainScreen(modifier: Modifier = Modifier) {
     var extractedText by remember { mutableStateOf("") }
     var isProcessing by remember { mutableStateOf(false) }
     Column(
-        modifier = modifier.padding(16.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+        .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-//        MyButton()
 
+    ) {
+//      this is the title   MyButton()
+        Text(
+            text = "Image Text Extractor",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+//image(modifier)
+        AppImage(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+//                .size(200.dp)
+//                .padding(top=8.dp)
+//                .padding(bottom = 98.dp)
+        )
+
+ Spacer(modifier= Modifier.weight(1f))
 
 
         selectedImageUri?.let{
@@ -66,6 +93,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             CircularProgressIndicator()
         }
         if (extractedText.isNotEmpty()){
+            //****this is the code for copying the code without selection*****
 //            Text(
 //                text = "Extracted Text: \n$extractedText",
 //                style = MaterialTheme.typography.bodyMedium
@@ -85,30 +113,52 @@ fun MainScreen(modifier: Modifier = Modifier) {
 //            ){
 //                Text("Copy Extracted TextText")
 //            }
-            CopySelectedText(extractedText=extractedText)
-        }
-        PickImageFromGallery { uri ->
-            selectedImageUri=uri
-            // Toast.makeText(context, "Image selected:\n$uri", Toast.LENGTH_SHORT).show()
-            // Later → send this URI to ML Kit OCR
-            extractedText=""
-            isProcessing=true
-            runOCR(context,uri){text->
-                extractedText=text
-                isProcessing=false
+            Card (
+                modifier= Modifier.fillMaxWidth(),
+                shape=RoundedCornerShape(16.dp)
+            ){
+                Column(modifier=Modifier.padding(16.dp)) {
+                    CopySelectedText(extractedText=extractedText)
+                }
             }
-           // isProcessing=false
+
         }
-        CaptureImageFromCamera { uri ->
-            selectedImageUri=uri
-            extractedText=""
-            isProcessing=true
-            runOCR(context,uri){
-                extractedText=it
-                isProcessing= false
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = RoundedCornerShape(29.dp),
+            elevation = CardDefaults.cardElevation(8.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                PickImageFromGallery { uri ->
+                    selectedImageUri = uri
+                    extractedText = ""
+                    isProcessing = true
+                    runOCR(context, uri) {
+                        extractedText = it
+                        isProcessing = false
+                    }
+                }
+
+                CaptureImageFromCamera { uri ->
+                    selectedImageUri = uri
+                    extractedText = ""
+                    isProcessing = true
+                    runOCR(context, uri) {
+                        extractedText = it
+                        isProcessing = false
+                    }
+                }
             }
         }
+
+
     }
+
 }
 fun runOCR(
     context: Context,
@@ -155,3 +205,21 @@ fun PickImageFromGallery(
         Text("Pick Image From Gallery")
     }
 }
+
+@Composable
+fun AppImage(modifier: Modifier = Modifier) {
+    Image(
+        painter = painterResource(id = com.example.extractor.R.drawable.outline_animated_images_24),
+        //painter = painterResource(R.drawable.alert_dark_frame),
+        contentDescription = "App Icon",
+        modifier = modifier.size(196.dp)
+    )
+}
+
+
+//@Preview(showBackground = true)
+//@Composable
+//fun AppImagePreview() {
+//    AppImage()
+//}
+
