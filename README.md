@@ -119,3 +119,9 @@ Android Developer | Jetpack Compose | ML Kit
 
 
 <img width="379" height="844" alt="Screenshot 2025-12-17 113239" src="https://github.com/user-attachments/assets/df22f83d-e4cb-4447-af2b-480d769a9929" />
+
+
+
+https://github.com/user-attachments/assets/aef28abe-ea86-4e35-b98c-accfd68f5a60
+
+
