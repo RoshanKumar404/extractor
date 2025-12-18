@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,33 +17,48 @@ import java.io.File
 
 @Composable
 fun CaptureImageFromCamera(
-    onImageCaptured:(Uri)-> Unit
-){
+    onImageCaptured: (Uri) -> Unit
+) {
     val context = LocalContext.current
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-    val launcher= rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) {
-        success->
-        if (success){
-            imageUri?.let{onImageCaptured(it)}
+
+    // Camera launcher
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            imageUri?.let(onImageCaptured)
         }
     }
-    Button(onClick = {
-        val file= File.createTempFile(
-            "camera_image_",
-            ".jpg",
-            context.cacheDir
-        )
-        val uri= FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.provider",
-            file
-        )
-        imageUri=uri
-        launcher.launch(uri)
-    }) {
-        Text("Capture Image From Camera")
+
+    // Permission launcher
+    // this was the thing that was missing , thats why my camera function was not working
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            val file = File.createTempFile(
+                "camera_image_",
+                ".jpg",
+                context.cacheDir
+            )
+
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider",
+                file
+            )
+
+            imageUri = uri
+            cameraLauncher.launch(uri)
+        }
     }
 
+    Button(
+        onClick = {
+            permissionLauncher.launch(android.Manifest.permission.CAMERA)
+        }
+    ) {
+        Text("Capture Image From Camera")
+    }
 }
