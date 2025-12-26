@@ -2,8 +2,10 @@ package com.example.extractor
 
 import android.R
 import android.content.Context
+import android.graphics.Color.green
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -15,6 +17,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Search
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -24,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -45,7 +53,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ExtractorTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    topBar = {
+                        Topbar()
+                    },
+                    modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MainScreen(modifier = Modifier.padding(innerPadding))
                 }
             }
@@ -215,11 +227,40 @@ fun AppImage(modifier: Modifier = Modifier) {
         modifier = modifier.size(196.dp)
     )
 }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Topbar(){
+    val context=LocalContext.current
+    TopAppBar(title = {Text(text = "The Extractor")},
+        navigationIcon = {
+            IconButton(onClick = { Toast.makeText(context,"Upgrading soon",Toast.LENGTH_SHORT).show()}) {
+                Icon(imageVector = Icons.Default.Menu, contentDescription = "sd", tint = Color.White)
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color(0xFF465686),
+            titleContentColor = Color.White,
+            navigationIconContentColor = Color.White
+        ),
+        actions = {
+            IconButton(onClick = { Toast.makeText(context,"Contact", Toast.LENGTH_SHORT).show()}) {
+                Icon(imageVector = Icons.Filled.Person, contentDescription = "Contacts",tint=Color.White,)
+            }
+            IconButton(onClick = { Toast.makeText(context,"Search things",Toast.LENGTH_SHORT).show()}) {
+                Icon(imageVector = Icons.Filled.Search, contentDescription = "search", tint = Color.White)
+            }
+            IconButton(onClick = {Toast.makeText(context,"s", Toast.LENGTH_SHORT).show()}) {
+//MoreVert
+                Icon(imageVector = Icons.Filled.Phone, contentDescription = "Phone", tint = Color.White)
+            }
+        })
 
+}
 
-//@Preview(showBackground = true)
-//@Composable
-//fun AppImagePreview() {
+@Preview(showBackground = true)
+@Composable
+fun AppImagePreview() {
 //    AppImage()
-//}
+    Topbar()
+}
 
